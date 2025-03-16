@@ -19,21 +19,23 @@ class abrir_archivo{
         json f;
         json j;
 };
-class Jugador {
+
+class VirtualJugador {
     public:
-        Jugador();//constructor por defecto
-        ~Jugador();//destructor
-        Jugador( const json &data);//
+        VirtualJugador();
+        VirtualJugador( const json &data);
+        ~VirtualJugador();
+        
         string getNombre();
-        string getApellido();
+         string getApellido();
         int getId();
         int getIdPosicion();
         int getIdEquipo();
         float getPrecio();
-        string identificarPosicion();
-       
-        int sumarPuntosPartidos();
-    private:
+        virtual string identificarPosicion() const=0;
+        virtual int calcularPuntos(const json &data, bool esLocal) const =0;
+       // virtual int getPuntosTotales()const;
+    protected:
         string nombre;
         string apellido;
         int equipo_id;
@@ -43,7 +45,21 @@ class Jugador {
         int puntos_partido;
         int puntos_totales;
 };
+class Jugador : public VirtualJugador {
+    public:
+        Jugador();
+        ~Jugador();
+        Jugador(const json& jugador);
+        string identificarPosicion()const override ;
+        int calcularPuntos(const json &data, bool esLocal) const override;  
+       int sumarPuntosPartidos(int i);
+        int getPuntosTotales();
 
+    protected:
+        
+        int puntos_partido;
+        int puntos_totales;
+    };
 class equipo{
     public:
         equipo();
@@ -52,14 +68,33 @@ class equipo{
         string getNombre();
         string getShortName();
         int getId();
-        void addJugador(Jugador jugador);
+        int getPuntosPartido(int i);
+        int getPuntosTotalesEquipo();
+
     private:
         string name;
         string short_name;
         int id;
-        vector<Jugador> jugadores;
         int puntos_partido;
         int puntos_totales;
+};
+class buscarJugadores : public equipo{ 
+    public:
+        buscarJugadores(int id);
+        ~buscarJugadores();
+        vector<Jugador> buscarJugador(int id);
+    private:
+        int id;
+};
+//comparar equipos
+class compararEquipos : public equipo{
+    public:
+        compararEquipos();
+        ~compararEquipos();
+        void comparar(int id1, int id2);
+    private:
+        equipo equipo1;
+        equipo equipo2;
 };
 /*class mostrar_puntos{
     public:
@@ -78,7 +113,7 @@ class esLocal{
     public:
         esLocal();
         ~esLocal();
-        bool determinarLocal(int idJugador);
+        bool determinarLocal(int idJugador, int i);
     private:
         bool local;
        bool esVisitante;
@@ -87,10 +122,12 @@ class goalkeeper : public Jugador{
     public:
         goalkeeper() ;
         goalkeeper(int id);
-        ~goalkeeper();
+       
+        virtual ~goalkeeper();
+        virtual int calcularPuntos(const json &data, bool esLocal) const override;
        // goalkeeper(const json &data);
-        int sumarPuntos(int id);
-        int getPuntosTotales();
+        int sumarPuntos(int id, int i);
+        
     private:
        int id;
         int id_posicion;
@@ -100,47 +137,42 @@ class goalkeeper : public Jugador{
 class defender : public Jugador{
     public:
         defender();
-        ~defender();
-        defender(string nombre, int id, int id_posicion, float precio, int puntos);
-        int getId();
-        int getIdPosicion();
-        int sumarPuntos(int puntos);
-        int getPuntosTotales();
+        virtual ~defender();
+       // virtual int calcularPuntos(const json &data, bool esLocal) const override;
+        int sumarPuntos(int id, int i);
+        
     private:
  
-        int id_posicion=2;
-        int puntos_patido=0;
-        int puntos_totales=0;
+        int id_posicion;
+        int puntos_patido;
+        int puntos_totales;
 };
 class midfielder : public Jugador{
     public:
         midfielder();
-        ~midfielder();
-        midfielder(string nombre, int id, int id_posicion, float precio, int puntos);
-        int getId();
-        int getIdPosicion();
-        int sumarPuntos(int puntos);
-        int getPuntosTotales();
+
+        virtual ~midfielder();
+        //virtual int calcularPuntos(const json &data, bool esLocal) const override;
+        int sumarPuntos(int id, int i);
+       
     private:
  
-        int id_posicion=3;
-        int puntos_patido=0;
-        int puntos_totales=0;
+        int id_posicion;
+        int puntos_patido;
+        int puntos_totales;
 };
-class forward : public Jugador{
+class Forward : public Jugador{
     public:
-        forward();
-        ~forward();
-        forward(string nombre, int id, int id_posicion, float precio, int puntos);
-        int getId();
-        int getIdPosicion();
-        int sumarPuntos(int puntos);
-        int getPuntosTotales();
+        Forward();
+      
+        int sumarPuntos(int id, int i);
+        virtual ~Forward();
+        //virtual int calcularPuntos(const json &data, bool esLocal) const override;
     private:
 
-        int id_posicion=4;
-        int puntos_patido=0;
-        int puntos_totales=0;
+        int id_posicion;
+        int puntos_patido;
+        int puntos_totales;
 };
 
 #endif // CLASESFANTASY_HPP
