@@ -19,16 +19,39 @@ abrir_archivo::abrir_archivo() {
 }
 abrir_archivo::~abrir_archivo() {
 }
-/*abrir_archivo::abrir_archivo(const json &archivo) {
-   ifstream bootstrap("bootstrap-static.json");
-    ifstream fixtures("fixtures.json");
-    json j;//bootstrap
-    json f;//fixtures
-    //leer archivo
-    bootstrap >> j;
-    fixtures >> f;
-    
-}*/
+// determinar si es local o visitante
+esLocal::esLocal() {    local = false;    esVisitante = false;}
+esLocal::~esLocal() {}
+bool esLocal::determinarLocal(int idJugador, int i) {
+    int id=idJugador;
+    abrir_archivo archivo;
+    auto partidos = archivo.f[i];
+    auto stats = partidos["stats"];
+    int local = partidos["team_h"];
+    int visitante = partidos["team_a"];
+    for (auto& stat : stats) {
+        //revisas h
+        for(auto& eventoH : stat["h"]){
+            if(eventoH["element"] == id){
+                local = true;
+                break;
+            }
+        }
+        //revisas a
+        for(auto& eventoA : stat["a"]){
+            if(eventoA["element"] == id){
+                esVisitante = true;
+                break;
+            }
+        }
+    }
+    if (local) {
+        return true;
+    }
+    else {
+        return false;
+    } 
+}
 //VirtualJugador
 VirtualJugador :: VirtualJugador(){
     nombre = "desconocido";
@@ -72,15 +95,11 @@ Jugador::Jugador() : VirtualJugador() {
 
 Jugador::Jugador(const json &data) : VirtualJugador(data) {
    
-   /* cout << "Jugador creado -> Nombre: [" << getNombre() 
-    << "], Apellido: [" << getApellido() 
-    << "], ID: [" << getId() 
-    << "], Posición: [" << getIdPosicion() 
-    << "], Precio: [" << getPrecio() << "]" << endl;*/
     puntos_partido = 0;
     puntos_totales = 0;
 }
 
+Jugador::~Jugador() {}
 string Jugador::identificarPosicion()const {
     static unordered_map<int, string> posiciones;
     
@@ -99,76 +118,24 @@ string Jugador::identificarPosicion()const {
     }
     
 }
-Jugador::~Jugador() {}
 
 int Jugador::sumarPuntosPartidos(int i) {
-    
-    if (id_posicion == 1) {
-        goalkeeper portero(id);
-        puntos_partido = portero.sumarPuntos(id,i);
+    static const unordered_map<int, function<int(int, int)>> posiciones = {
+        {1, [](int id, int i) { goalkeeper portero(id); return portero.sumarPuntos(id, i); }},
+        {2, [](int id, int i) { defender defensor; return defensor.sumarPuntos(id, i); }},
+        {3, [](int id, int i) { midfielder mediocampista; return mediocampista.sumarPuntos(id, i); }},
+        {4, [](int id, int i) { Forward delantero; return delantero.sumarPuntos(id, i); }}
+    };
+    auto it = posiciones.find(id_posicion);
+    if (it != posiciones.end()) {//si la posicion es valida
+        puntos_partido = it->second(id, i);
+    } else {
+        puntos_partido = 0;  // Si la posición no es válida, asignamos 0 puntos.
     }
-    else if (id_posicion == 2) {
-        defender defensor;
-        puntos_partido = defensor.sumarPuntos(id,i);
-    }
-    else if (id_posicion == 3) {
-        midfielder mediocampista;
-        puntos_partido = mediocampista.sumarPuntos(id,i);
-    }
-    else if (id_posicion == 4) {
-        Forward delantero;
-        puntos_partido = delantero.sumarPuntos(id,i);
-    }
+
     return puntos_partido;
 }
-// int Jugador::calcularPuntos(const json &fixture, bool esLocal) const{
-//     int puntos =0;
-//     auto stats = fixture["stats"];
-//     int goles_local = fixture["team_h_score"];
-//     int goles_visitante = fixture["team_a_score"];
-//     int goles_encajados = 0;
 
-//     if(esLocal){
-//         goles_encajados = goles_visitante;//si es local los goles encajados son los del visitante
-//     }else if(!esLocal){
-//         goles_encajados = goles_local;
-//     }
-//     //-1 punto cada 2 goles
-//     if(goles_encajados >= 2){
-//         puntos -= goles_encajados/2;
-//     }
-//     //porteria 0
-//     if(goles_encajados == 0){
-//         puntos += 4;
-//     }
-//     for (auto& stat : stats) {
-//         string identifier = stat["identifier"];
-//         // Seleccionamos el array a procesar según esLocal
-//         auto eventos = esLocal ? stat["h"] : stat["a"];
-//         for (auto& evento : eventos) {
-//             if (evento["element"] == id) {
-//                 int valor = evento["value"];
-//                 if (identifier == "goals_scored") {
-//                     puntos += 10 * valor;
-//                 }
-//                 else if (identifier == "penalties_saved") {
-//                     puntos += 5 * valor;
-//                 }
-//                 else if (identifier == "saves") {
-//                     puntos += (valor / 3);
-//                 }
-//                 else if (identifier == "yellow_cards") {
-//                     puntos -= valor;
-//                 }
-//                 else if (identifier == "red_cards") {
-//                     puntos -= 3 * valor;
-//                 }
-            
-//             }
-//         }
-//     }
-//     return puntos;
-// }
 int Jugador::getPuntosTotales() {
     abrir_archivo archivo;
     int total=0;
@@ -181,154 +148,7 @@ int Jugador::getPuntosTotales() {
     }
     return total;
 }
-// int Jugador::getPuntosTotales( ) {
-//     abrir_archivo archivo;
-//     int total=0;
-//     int limite= min((int)archivo.f.size(),50);
-//     esLocal eslocal; 
-//     bool es_local;
-//     for(int i=0; i <50; i++){
-//         es_local = eslocal.determinarLocal(id, i);
-//         total += calcularPuntos(archivo.f[i], es_local);
-//     }
-//     puntos_totales = total;
-//     return puntos_totales;
-// }
-   
-//equipo
-equipo::equipo() {
-    name = "";
-    short_name = "";
-    id = 0;
-    puntos_partido = 0;
-    puntos_totales = 0;
-}
-equipo::~equipo() {
-}
-equipo::equipo(const json &dataEquipo) {
-    name = dataEquipo["name"];
-    short_name = dataEquipo["short_name"];
-    id = dataEquipo["id"];
-    puntos_partido = 0;
-    puntos_totales = 0;
-}
-string equipo::getNombre() {
-    return name;
-}
-string equipo::getShortName() {
-    return short_name;
-}
-int equipo::getId() {
-    return id;
-}
-
-int equipo::getPuntosPartido(int i) {
-    abrir_archivo archivo;
-    auto partidos = archivo.f[i];
-    int goles_local = partidos["team_h_score"];
-    int goles_visitante = partidos["team_a_score"];
-    int total = 0;
-    esLocal eslocal; 
-    bool es_local = eslocal.determinarLocal(id, i);
-    if(es_local){
-        total= goles_local;
-    }
-    else if(!es_local){
-        total = goles_visitante;
-    }
-
-    puntos_partido = total;
-    return puntos_partido;
-}
-int equipo::getPuntosTotalesEquipo() {
-    int total = 0;
-    for(int i=0; i<50; i++){
-        total += getPuntosPartido(i);
-    }
-    puntos_totales = total;
-    return puntos_totales;
-}
-//buscarJugadores
-buscarJugadores::buscarJugadores(int id) {
-    this->id = id;
-
-}
-buscarJugadores::~buscarJugadores() {
-}
-/*vector<Jugador> buscarJugadores::buscarJugador(int id) {
-    abrir_archivo archivo;
-    auto jugadores = archivo.j["elements"];
-    vector<Jugador> jugadores_equipo;
-    for (auto& jugador : jugadores) {
-        if (jugador["team"] == id) {
-            Jugador jugador1(jugador);
-            jugadores_equipo.push_back(jugador1);
-        }
-    }
-    return jugadores_equipo;
-}*/
-//compararEquipos
-compararEquipos::compararEquipos() {
-    equipo1 = equipo();
-    equipo2 = equipo();
-}
-compararEquipos::~compararEquipos() {
-}
-void compararEquipos::comparar(int id1, int id2) {
-    abrir_archivo archivo;
-    auto equipos = archivo.j["teams"];
-    equipo1 = equipo(equipos[id1]);
-    equipo2 = equipo(equipos[id2]);
-    int puntos_equipo1 = equipo1.getPuntosTotalesEquipo();
-    int puntos_equipo2 = equipo2.getPuntosTotalesEquipo();
-    if (puntos_equipo1 > puntos_equipo2) {
-        cout << "El equipo " << equipo1.getNombre() << " tiene más puntos que el equipo " << equipo2.getNombre() << endl;
-    }
-    else if (puntos_equipo1 < puntos_equipo2) {
-        cout << "El equipo " << equipo2.getNombre() << " tiene más puntos que el equipo " << equipo1.getNombre() << endl;
-    }
-    else {
-        cout << "Los equipos " << equipo1.getNombre() << " y " << equipo2.getNombre() << " tienen la misma cantidad de puntos" << endl;
-    }
-}
-// determinar si es local o visitante
-esLocal::esLocal() {
-    local = false;
-    esVisitante = false;
-   
-}
-esLocal::~esLocal() {}
-bool esLocal::determinarLocal(int idJugador, int i) {
-    int id=idJugador;
-    abrir_archivo archivo;
-    auto partidos = archivo.f[i];
-    auto stats = partidos["stats"];
-    int local = partidos["team_h"];
-    int visitante = partidos["team_a"];
-    for (auto& stat : stats) {
-        //revisas h
-        for(auto& eventoH : stat["h"]){
-            if(eventoH["element"] == id){
-                local = true;
-                break;
-            }
-        }
-        //revisas a
-        for(auto& eventoA : stat["a"]){
-            if(eventoA["element"] == id){
-                esVisitante = true;
-                break;
-            }
-        }
-    }
-    if (local) {
-        return true;
-    }
-    else {
-        return false;
-    } 
-}
-//goalkeeper
+ //goalkeeper
 
 goalkeeper::goalkeeper() {
     id = 0;
@@ -340,10 +160,8 @@ goalkeeper::goalkeeper(int id) {
     this->id = id;
     id_posicion = 1;
     puntos_patido = 0;
-    puntos_totales = 0;
 }
-goalkeeper::~goalkeeper() {
-}
+goalkeeper::~goalkeeper() {}
 
 // Reglas de puntuación 
 // - Portería a cero: +4
@@ -365,110 +183,42 @@ int goalkeeper::sumarPuntos(int id, int i) {
     esLocal eslocal; 
     bool es_local = eslocal.determinarLocal(id, i);
   
-    int goles_encajados = 0;
-    if(es_local){
-        goles_encajados = goles_visitante;//si es local los goles encajados son los del visitante
-    }else if(!es_local){
-        goles_encajados = goles_local;
-    }
+    int goles_encajados = es_local ? goles_visitante : goles_local;
+    
     //-1 punto cada 2 goles
-    if(goles_encajados >= 2){
-        puntos -= goles_encajados/2;
-    }
+    if(goles_encajados >= 2){ puntos -= goles_encajados/2;}
     //porteria 0
-    if(goles_encajados == 0){
-        puntos += 4;
-    }
-    for (auto& stat : stats) {
+    if(goles_encajados == 0){  puntos += 4;}
+    static const unordered_map<string, int> reglas = {
+        {"goals_scored", 10},        // Gol anotado
+        {"penalties_saved", 5},      // Penal atajado
+        {"yellow_cards", -1},        // Tarjeta amarilla
+        {"red_cards", -3}            // Tarjeta roja
+    };
+    for (const auto& stat : stats) {
         string identifier = stat["identifier"];
         // Seleccionamos el array a procesar según esLocal
         auto eventos = es_local ? stat["h"] : stat["a"];
-        for (auto& evento : eventos) {
-            if (evento["element"] == id) {
+           
+        for (const auto& evento : eventos) {
+            if (evento["element"] == id && evento.contains("value")) {
                 int valor = evento["value"];
-                if (identifier == "goals_scored") {
-                    puntos += 10 * valor;
-                }
-                else if (identifier == "penalties_saved") {
-                    puntos += 5 * valor;
-                }
-                else if (identifier == "saves") {
-                    puntos += (valor / 3);
-                }
-                else if (identifier == "yellow_cards") {
-                    puntos -= valor;
-                }
-                else if (identifier == "red_cards") {
-                    puntos -= 3 * valor;
-                }
-            
-            }
-        }
-    }
-    return puntos;
-}
-int goalkeeper::calcularPuntos(const json &fixture, bool esLocal) const{
-    int puntos =0;
-    auto stats = fixture["stats"];
-    int goles_local = fixture["team_h_score"];
-    int goles_visitante = fixture["team_a_score"];
-    int goles_encajados = 0;
 
-    if(esLocal){
-        goles_encajados = goles_visitante;//si es local los goles encajados son los del visitante
-    }else if(!esLocal){
-        goles_encajados = goles_local;
-    }
-    //-1 punto cada 2 goles
-    if(goles_encajados >= 2){
-        puntos -= goles_encajados/2;
-    }
-    //porteria 0
-    if(goles_encajados == 0){
-        puntos += 4;
-    }
-    for (auto& stat : stats) {
-        string identifier = stat["identifier"];
-        // Seleccionamos el array a procesar según esLocal
-        auto eventos = esLocal ? stat["h"] : stat["a"];
-        for (auto& evento : eventos) {
-            if (evento["element"] == id) {
-                int valor = evento["value"];
-                if (identifier == "goals_scored") {
-                    puntos += 10 * valor;
-                }
-                else if (identifier == "penalties_saved") {
-                    puntos += 5 * valor;
-                }
-                else if (identifier == "saves") {
+                if (reglas.count(identifier)) {
+                    puntos += reglas.at(identifier) * valor;
+                } else if (identifier == "saves") { // Regla especial para atajadas
                     puntos += (valor / 3);
                 }
-                else if (identifier == "yellow_cards") {
-                    puntos -= valor;
-                }
-                else if (identifier == "red_cards") {
-                    puntos -= 3 * valor;
-                }
-            
-            }
+          }
         }
     }
     return puntos;
 }
-/*int goalkeeper::getPuntosTotales(int id) {
-    abrir_archivo archivo;
-    int total=0;
-    for(int i=0; i==archivo.f.size(); i++){
-        total += sumarPuntos(id,i );
-    }
-    puntos_totales = total;
-    return puntos_totales;
-}*/
+
 //defender
 defender::defender() {
     id_posicion = 2;
     puntos_patido = 0;
-    puntos_totales = 0;
 }
 defender::~defender() {
 }
@@ -491,36 +241,30 @@ int defender::sumarPuntos(int id,int i) {
     bool es_local = eslocal.determinarLocal(id,i);
   
     int goles_encajados = 0;
-    if(es_local){
-        goles_encajados = goles_visitante;//si es local los goles encajados son los del visitante
-    }else if(!es_local){
-        goles_encajados = goles_local;
-    }
-    if(goles_encajados == 0){
-        puntos += 4;
-    }
-    for (auto& stat : stats) {
+    goles_encajados = es_local ? goles_visitante : goles_local;
+    //porteria 0
+    if(goles_encajados == 0){  puntos += 4;}
+    puntos_patido = puntos;
+    static const unordered_map<string, int> reglas = {
+        {"goals_scored", 6},        // Gol anotado
+        {"assists", 3},             // Asistencia
+        {"own_goals", -2},          // Gol en propia puerta
+        {"yellow_cards", -1},       // Tarjeta amarilla
+        {"red_cards", -3}           // Tarjeta roja
+    };
+    for (const auto& stat : stats) {
         string identifier = stat["identifier"];
+        // Seleccionamos el array a procesar según esLocal
         auto eventos = es_local ? stat["h"] : stat["a"];
-        for (auto& evento : eventos) {
-            if (evento["element"] == id) {
+           
+        for (const auto& evento : eventos) {
+            if (evento["element"] == id && evento.contains("value")) {
                 int valor = evento["value"];
-                if (identifier == "goals_scored") {
-                    puntos += 6 * valor;
-                }
-                else if (identifier == "assists") {
-                    puntos += 3 * valor;
-                }
-                else if (identifier == "own_goals") {
-                    puntos -= 2 * valor;
-                }
-                else if (identifier == "yellow_cards") {
-                    puntos -= valor;
-                }
-                else if (identifier == "red_cards") {
-                    puntos -= 3 * valor;
-                }
-            }
+
+                if (reglas.count(identifier)) {
+                    puntos += reglas.at(identifier) * valor;
+                } 
+          }
         }
     }
     puntos_patido = puntos;
@@ -531,7 +275,6 @@ int defender::sumarPuntos(int id,int i) {
 midfielder::midfielder() {
     id_posicion = 3;
     puntos_patido = 0;
-    puntos_totales = 0;
 }
 midfielder::~midfielder() {
 }
@@ -549,26 +292,27 @@ int midfielder::sumarPuntos(int id, int i) {
     int puntos = 0;
     esLocal eslocal; 
     bool es_local = eslocal.determinarLocal(id,i);
-  
-    for (auto& stat : stats) {
+    
+    static const unordered_map<string, int> reglas = {
+        {"goals_scored", 5},        // Gol anotado
+        {"assists", 3},             // Asistencia
+        {"clean_sheets", 1},        // Portería a cero
+        {"yellow_cards", -1},       // Tarjeta amarilla
+        {"red_cards", -3}           // Tarjeta roja
+    };
+    for (const auto& stat : stats) {
         string identifier = stat["identifier"];
+        // Seleccionamos el array a procesar según esLocal
         auto eventos = es_local ? stat["h"] : stat["a"];
-        for (auto& evento : eventos) {
-            if (evento["element"] == id) {
+           
+        for (const auto& evento : eventos) {
+            if (evento["element"] == id && evento.contains("value")) {
                 int valor = evento["value"];
-                if (identifier == "goals_scored") {
-                    puntos += 5 * valor;
-                }
-                else if (identifier == "assists") {
-                    puntos += 3 * valor;
-                }
-                else if (identifier == "yellow_cards") {
-                    puntos -= valor;
-                }
-                else if (identifier == "red_cards") {
-                    puntos -= 3 * valor;
-                }
-            }
+
+                if (reglas.count(identifier)) {
+                    puntos += reglas.at(identifier) * valor;
+                } 
+          }
         }
     }
     puntos_patido = puntos;
@@ -579,7 +323,6 @@ int midfielder::sumarPuntos(int id, int i) {
 Forward::Forward() {
     id_posicion = 4;
     puntos_patido = 0;
-    puntos_totales = 0;
 }
 Forward::~Forward() {
 }
@@ -597,28 +340,107 @@ int Forward::sumarPuntos(int id, int i) {
     esLocal eslocal; 
     bool es_local = eslocal.determinarLocal(id,i);
   
-    for (auto& stat : stats) {
+    static const unordered_map<string, int> reglas = {
+        {"goals_scored", 4},        // Gol anotado
+        {"assists", 3},             // Asistencia
+        {"yellow_cards", -1},       // Tarjeta amarilla
+        {"red_cards", -3}           // Tarjeta roja
+    };
+    for (const auto& stat : stats) {
         string identifier = stat["identifier"];
+        // Seleccionamos el array a procesar según esLocal
         auto eventos = es_local ? stat["h"] : stat["a"];
-        for (auto& evento : eventos) {
-            if (evento["element"] == id) {
+           
+        for (const auto& evento : eventos) {
+            if (evento["element"] == id && evento.contains("value")) {
                 int valor = evento["value"];
-                if (identifier == "goals_scored") {
-                    puntos += 4 * valor;
-                }
-                else if (identifier == "assists") {
-                    puntos += 3 * valor;
-                }
-                else if (identifier == "yellow_cards") {
-                    puntos -= valor;
-                }
-                else if (identifier == "red_cards") {
-                    puntos -= 3 * valor;
-                }
-            }
+
+                if (reglas.count(identifier)) {
+                    puntos += reglas.at(identifier) * valor;
+                } 
+          }
         }
     }
     puntos_patido = puntos;
     return puntos_patido;
 }
+  
+//equipo
+equipo::equipo() {
+    name = "";
+    short_name = "";
+    id = 0;
+    puntos_partido = 0;
+    puntos_totales = 0;
+}
+equipo::~equipo() {
+}
+equipo::equipo(const json &dataEquipo) {
+    name = dataEquipo["name"];
+    short_name = dataEquipo["short_name"];
+    id = dataEquipo["id"];
+    puntos_partido = 0;
+    puntos_totales = 0;
+}
+string equipo::getNombre() {   return name;}
+string equipo::getShortName() {   return short_name;}
+int equipo::getId() {    return id;}
+
+int equipo::getPuntosPartido(int i) {
+    abrir_archivo archivo;
+    auto partidos = archivo.f[i];
+    int goles_local = partidos["team_h_score"];
+    int goles_visitante = partidos["team_a_score"];
+    int total = 0;
+    esLocal eslocal; 
+    bool es_local = eslocal.determinarLocal(id, i);
+     total = es_local ? goles_visitante : goles_local;
+
+    puntos_partido = total;
+    return puntos_partido;
+}
+int equipo::getPuntosTotalesEquipo() {
+    int total = 0;
+    for(int i=0; i<50; i++){
+        total += getPuntosPartido(i);
+    }
+    puntos_totales = total;
+    return puntos_totales;
+}
+//buscarJugadores
+buscarJugadores::buscarJugadores(int id) {   this->id = id;}
+buscarJugadores::~buscarJugadores() {}
+vector<Jugador> buscarJugadores::buscarJugador(int id) {
+    abrir_archivo archivo;
+    auto jugadores = archivo.j["elements"];
+    vector<Jugador> jugadores_equipo;
+    for (auto& jugador : jugadores) {
+        if (jugador["team"] == id) {
+            Jugador jugador1(jugador);
+            jugadores_equipo.push_back(jugador1);
+        }
+    }
+    return jugadores_equipo;
+}
+//compararEquipos
+compararEquipos::compararEquipos() {    equipo1 = equipo();   equipo2 = equipo();}
+compararEquipos::~compararEquipos() {}
+void compararEquipos::comparar(int id1, int id2) {
+    abrir_archivo archivo;
+    auto equipos = archivo.j["teams"];
+    equipo1 = equipo(equipos[id1]);
+    equipo2 = equipo(equipos[id2]);
+    int puntos_equipo1 = equipo1.getPuntosTotalesEquipo();
+    int puntos_equipo2 = equipo2.getPuntosTotalesEquipo();
+    if (puntos_equipo1 > puntos_equipo2) {
+        cout << "El equipo " << equipo1.getNombre() << " tiene más puntos que el equipo " << equipo2.getNombre() << endl;
+    }
+    else if (puntos_equipo1 < puntos_equipo2) {
+        cout << "El equipo " << equipo2.getNombre() << " tiene más puntos que el equipo " << equipo1.getNombre() << endl;
+    }
+    else {
+        cout << "Los equipos " << equipo1.getNombre() << " y " << equipo2.getNombre() << " tienen la misma cantidad de puntos" << endl;
+    }
+}
+
 
