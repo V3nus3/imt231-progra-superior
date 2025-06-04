@@ -1,0 +1,62 @@
+[
+  {
+    "nombre": "ben",
+    "platillo": "Omelet",
+    "bebida": "Café Americano",
+    "tiempo_llegada": 0.5
+  },
+  {
+    "nombre": "lucía",
+    "platillo": "Waffle",
+    "bebida": "Matcha",
+    "tiempo_llegada": 1.0
+  },
+  {
+    "nombre": "mateo",
+    "platillo": "Panqueque",
+    "bebida": "Té",
+    "tiempo_llegada": 1.3
+  },
+  {
+    "nombre": "sofia",
+    "platillo": "Panini",
+    "bebida": "Capuchino",
+    "tiempo_llegada": 2.0
+  },
+  {
+    "nombre": "emilia",
+    "platillo": "Waffle",
+    "bebida": "Café Americano",
+    "tiempo_llegada": 2.7
+  },
+  {
+    "nombre": "leo",
+    "platillo": "Omelet",
+    "bebida": "Té",
+    "tiempo_llegada": 3.2
+  },
+  {
+    "nombre": "valentina",
+    "platillo": "Panini",
+    "bebida": "Matcha",
+    "tiempo_llegada": 3.5
+  },
+  {
+    "nombre": "diego",
+    "platillo": "Panqueque",
+    "bebida": "Capuchino",
+    "tiempo_llegada": 4.1
+  },
+  {
+    "nombre": "marco",
+    "platillo": "Waffle",
+    "bebida": "Té",
+    "tiempo_llegada": 4.8
+  },
+  {
+    "nombre": "camila",
+    "platillo": "Omelet",
+    "bebida": "Matcha",
+    "tiempo_llegada": 5.0
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "nombre": "Juan",
+    "id_trabajador": 1,
+    "rol": "Mesero"
+  },
+  {
+    "nombre": "Lucía",
+    "id_trabajador": 2,
+    "rol": "Mesero"
+  },
+  {
+    "nombre": "Carlos",
+    "id_trabajador": 3,
+    "rol": "Mesero"
+  },
+  {
+    "nombre": "Elena",
+    "id_trabajador": 4,
+    "rol": "Cocinero"
+  },
+  {
+    "nombre": "Andrés",
+    "id_trabajador": 5,
+    "rol": "Cocinero"
+  },
+  {
+    "nombre": "María",
+    "id_trabajador": 6,
+    "rol": "Cocinero"
+  },
+  {
+    "nombre": "Paula",
+    "id_trabajador": 7,
+    "rol": "Cajero"
+  }
+]

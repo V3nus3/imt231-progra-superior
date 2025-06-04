@@ -1,0 +1,46 @@
+{
+  "platillos": [
+    {
+      "nombre": "Panini",
+      "tiempo_preparacion_min": 15,
+      "precio": 20
+    },
+    {
+      "nombre": "Waffle",
+      "tiempo_preparacion_min": 20,
+      "precio": 30
+    },
+    {
+      "nombre": "Omelet",
+      "tiempo_preparacion_min": 10,
+      "precio": 15
+    },
+    {
+      "nombre": "Panqueque",
+      "tiempo_preparacion_min": 12,
+      "precio": 18
+    }
+  ],
+  "bebidas": [
+    {
+      "nombre": "Café Americano",
+      "tiempo_preparacion_min": 10,
+      "precio": 10
+    },
+    {
+      "nombre": "Capuchino",
+      "tiempo_preparacion_min": 15,
+      "precio": 15
+    },
+    {
+      "nombre": "Té",
+      "tiempo_preparacion_min": 8,
+      "precio": 8
+    },
+    {
+      "nombre": "Matcha",
+      "tiempo_preparacion_min": 10,
+      "precio": 12
+    }
+  ]
+}
