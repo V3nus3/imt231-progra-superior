@@ -2,7 +2,6 @@
 #define CLIENTE_H
 
 #include <string>
-// CORRECCIÓN: Incluir las definiciones completas en lugar de declaraciones adelantadas
 #include "Platillo.h"
 #include "Bebida.h"
 
@@ -17,8 +16,8 @@ public:
     Mesa* mesaAsignada;
     Pedido* pedidoActual;
     Restaurante* restaurante;
-    Platillo platilloDeseado; // <-- Ahora esto es válido
-    Bebida bebidaDeseada;   // <-- Ahora esto es válido
+    Platillo platilloDeseado; 
+    Bebida bebidaDeseada;   
 
     Cliente(std::string n, Restaurante* r, const Platillo& p, const Bebida& b);
     void esperando();
