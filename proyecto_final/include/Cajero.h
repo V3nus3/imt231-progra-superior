@@ -2,17 +2,17 @@
 #define CAJERO_H
 
 #include "Trabajador.h"
-#include <mutex> // <-- LÍNEA AÑADIDA
+#include <mutex> 
 
-// Declaraciones adelantadas para resolver dependencias
+// Se Declaran estas clases para resolver dependecias que tendra cajero
 class Restaurante;
 class Mesa;
 class Pedido;
 
-class Cajero : public Trabajador {
+class Cajero : public Trabajador { //Aqui la clase Cajero hereda del padre Trabajador
 public:
     Restaurante* restaurante;
-    std::mutex caja_mtx; // <-- LÍNEA AÑADIDA: Mutex para la caja
+    std::mutex caja_mtx; // Se usa el mutex para bloquear el hilo caja hasta que este desocupe
 
     Cajero(int id, std::string n, Restaurante* r);
     void trabajar() override;
