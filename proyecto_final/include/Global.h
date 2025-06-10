@@ -7,7 +7,7 @@
 #include <chrono>
 #include <iomanip>
 
-// Enum para el estado de los pedidos, requerido por múltiples clases.
+//Creacioon de la clase EstaodPedido para facilitar el manejo de estados del Pedido
 enum class EstadoPedido {
     Pendiente,
     Pagado,
@@ -16,7 +16,7 @@ enum class EstadoPedido {
     Entregado
 };
 
-// Convierte el enum a string para poder imprimirlo.
+// Convierte EstadoPedido a un string de forma que este se pueda imprimir en la terminal
 inline std::string estadoToString(EstadoPedido estado) {
     switch (estado) {
         case EstadoPedido::Pendiente: return "Pendiente";
@@ -28,12 +28,14 @@ inline std::string estadoToString(EstadoPedido estado) {
     }
 }
 
-// Mutex global para sincronizar la salida a la consola y evitar texto mezclado.
+// Mutex global para sincronizar a la terminal de salida y los mensajes de salida no se mezclen entre si
+//para asi evitar la convolucion de mensajes de salida
 inline std::mutex logMutex;
 
-// Función de registro segura para hilos.
+// Función log imprimira los mensaje de salida en la terminal de forma segura en un entorno multihilo
 template<typename... Args>
 void log(Args&&... args) {
+    //Se asegura que un solo hilo a la vez, ejecute el bloque de codigo que imprime en la terminal
     std::lock_guard<std::mutex> lock(logMutex);
     // Imprime la marca de tiempo para cada evento.
     auto now = std::chrono::system_clock::now();
