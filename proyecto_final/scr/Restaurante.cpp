@@ -10,8 +10,10 @@
 
 using json = nlohmann::json;
 
+//Constructor de Restaurante
 Restaurante::Restaurante() : simulacionActiva(true), proximoIdPedido(1) {
     try {
+        //Cargar los datos de platillos, bebidas, trabajadores, electrodomesticos desde los archivos JSON
         cargarDatos();
     } catch (const std::exception& e) {
         log("ERROR CRÍTICO al cargar datos:", e.what());
