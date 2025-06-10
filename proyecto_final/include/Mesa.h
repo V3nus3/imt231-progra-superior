@@ -3,9 +3,8 @@
 
 #include <vector>
 #include <mutex>
-// #include "Cliente.h" // <-- LÍNEA ELIMINADA
 
-class Cliente; // <-- LÍNEA AÑADIDA: Declaración adelantada
+class Cliente;
 
 class Mesa {
 public:
