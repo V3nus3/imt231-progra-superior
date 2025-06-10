@@ -1,1 +1,60 @@
-provicional
+Simulación de Restaurante con Concurrencia
+Este proyecto es una simulación de un restaurante que utiliza programación orientada a objetos y concurrencia para modelar el comportamiento de sus diferentes actores. Fue desarrollado como proyecto final para demostrar la integración de los cuatro pilares del curso de Programación Superior: Programación Orientada a Objetos, Estructuras de Datos, Algoritmos y Concurrencia.
+******************************************************************************************
+Estructura de Carpetas
+El código fuente está organizado de la siguiente manera, como se solicita en los entregables:
+
+/
+|-- /src/           # Archivos fuente (.cpp)
+|-- /include/       # Archivos de cabecera (.h)
+|-- /data/          # Archivos de configuración (menu.json, personal.json, etc.)
+|-- /build/         # Directorio para los archivos de compilación (creado por CMake)
+|-- CMakeLists.txt  # Archivo de configuración para la compilación
+`-- README.md       # Este archivo
+en el repositorio la carpeta 'src' esta mal nombrada como 'scr'
+*********************************************************************************************
+Instrucciones de Compilación y Ejecución
+Requisitos
+Compilador de C++ con soporte para C++17 (por el uso de std::filesystem, if constexpr, etc.).
+CMake 3.10 o superior.
+Compilación
+Para compilar el proyecto, ejecuta los siguientes comandos desde la raíz del directorio:
+Bash
+# 1. En la terminal escribir para compilar
+make
+
+# 2. Ejecutar
+make run
+
+Ejecución
+Una vez compilado, puedes ejecutar la simulación 
+El programa comenzará a imprimir un registro de los eventos de la simulación en la consola, mostrando en tiempo real las acciones de los clientes, cocineros y meseros.
+*************************************************************************************************************************************************************
+Descripción Arquitectónica
+La arquitectura del sistema está diseñada para simular un entorno dinámico donde múltiples agentes (clientes y empleados) actúan de forma independiente y simultánea.
+
+Estilo Arquitectónico
+El proyecto sigue un modelo de simulación de eventos discretos implementado sobre una arquitectura orientada a objetos y multihilo. Cada agente activo (cliente, cocinero, mesero) se ejecuta en su propio std::thread, y la coordinación entre ellos se gestiona a través de recursos compartidos seguros y un patrón de productor-consumidor.
+
+Componentes Principales
+Restaurante: Es la clase orquestadora principal. Es responsable de cargar la configuración inicial desde archivos JSON (menús, personal, mesas) , gestionar los hilos de los empleados y clientes , y contener los recursos compartidos centrales, como las colas de pedidos.
+
+Trabajador (Clase Base Abstracta): Define la interfaz común para todos los empleados. De ella heredan:
+
+Cajero: Gestiona la interacción inicial con el cliente, el cobro de pedidos y la asignación de mesas.
+
+Cocinero: Toma pedidos de una cola de pendientes, los prepara y los coloca en una cola de listos.
+
+Mesero: Toma pedidos de la cola de listos y los entrega en la mesa del cliente.
+
+Cliente: Cada instancia se ejecuta en su propio hilo. Su flujo de acciones (llegar, pedir, pagar, esperar, comer y liberar la mesa) impulsa la simulación.
+
+Recursos y Datos:
+Pedido: Objeto de datos que contiene la orden del cliente. Su estado (EstadoPedido) es crucial para la sincronización entre cocineros y meseros.
+Mesa / Electrodomestico: Representan recursos físicos finitos. Cada uno contiene su propio std::mutex para asegurar que no sean usados por varios hilos a la vez.
+Colas de Pedidos (std::queue<Pedido*>): Son el corazón del patrón productor-consumidor.
+pedidosPendientes: Los clientes producen y los cocineros consumen.
+pedidosListos: Los cocineros producen y los meseros consumen.
+
+Uso de IA
+Se ha empleado IA como herramienta de asistencia para la depuración de código y la generación de borradores de documentación, en generacion de codigo se consulto a chat GPT que genere el codigo para compilar con Makefile. Cualquier fragmento de código específico generado por IA está debidamente identificado en los comentarios del código fuente.
