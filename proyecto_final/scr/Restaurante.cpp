@@ -20,26 +20,34 @@ Restaurante::Restaurante() : simulacionActiva(true), proximoIdPedido(1) {
         simulacionActiva = false;
     }
 }
-
+//Destrucotr de la clase restaurante
 Restaurante::~Restaurante() {}
-
+//Metodo cargar datos al restaurante
 void Restaurante::cargarDatos() {
+    //apertura de platillos.json
     std::ifstream f_platillos("data/platillos.json");
     if (!f_platillos.is_open()) throw std::runtime_error("No se pudo abrir platillos.json");
     json dataPlatillos = json::parse(f_platillos);
+    //Busqueda y acceso a datos del platillo
     for (const auto& item : dataPlatillos["platillos"]) {
         menuPlatillos.emplace_back(item["nombre"], item["tiempo_preparacion_min"], item["precio"]);
     }
+    //Busqueda de datos de la bebida
     for (const auto& item : dataPlatillos["bebidas"]) {
         menuBebidas.emplace_back(item["nombre"], item["tiempo_preparacion_min"], item["precio"]);
     }
+    //Registra un mensaje en la terminal de la cantidad de platillos y bebidas fueron cargados
     log("Menú cargado:", menuPlatillos.size(), "platillos y", menuBebidas.size(), "bebidas.");
-    
+
+    //Lectura de datos de trabajadores
     std::ifstream f_trabajadores("data/trabajadores_list.json");
     if (!f_trabajadores.is_open()) throw std::runtime_error("No se pudo abrir trabajadores_list.json");
     json dataTrabajadores = json::parse(f_trabajadores);
+    //Bucle para recorrer el archivo de trabajadores JSON
     for (const auto& item : dataTrabajadores) {
+        //Compara el valor del rol del trabajador
         if (item["rol"] == "Cajero") {
+            //crea un objeto cajero usando los datos del trabajador esto para todos los tipos de rol
             trabajadores.emplace_back(std::make_unique<Cajero>(item["id_trabajador"], item["nombre"], this));
         } else if (item["rol"] == "Cocinero") {
             trabajadores.emplace_back(std::make_unique<Cocinero>(item["id_trabajador"], item["nombre"], this));
@@ -47,19 +55,25 @@ void Restaurante::cargarDatos() {
             trabajadores.emplace_back(std::make_unique<Mesero>(item["id_trabajador"], item["nombre"], this));
         }
     }
+    //Registra cuantos trbajadores fueron cargados correcatmente ala restaurante
     log("Personal cargado:", trabajadores.size(), "trabajadores.");
-    
+
+    //Lectura de datos de Electrodomestricos
     std::ifstream f_electro("data/electrodomesticos_list.json");
+    //MArca error si no se logro abrir la lista de electrodomesticos
     if (!f_electro.is_open()) throw std::runtime_error("No se pudo abrir electrodomesticos_list.json");
     json dataElectro = json::parse(f_electro);
+    //Recorre cada electrodomestrico en el JSON
     for (const auto& item : dataElectro) {
         electrodomesticos.emplace_back(std::make_unique<Electrodomestico>(item["tipo"].get<std::string>()));
     }
+    //Registra el numero de Electrodomesticos en la cocina
     log("Cocina equipada con:", electrodomesticos.size(), "electrodomésticos.");
     
     for(int i = 1; i <= 10; ++i) {
         mesas.emplace_back(std::make_unique<Mesa>(i, 4));
     }
+    //Registra la cantidad de mesas en el restaurantes
     log(mesas.size(), "mesas listas para los clientes.");
 }
 
