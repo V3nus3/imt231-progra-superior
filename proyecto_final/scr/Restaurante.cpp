@@ -170,7 +170,7 @@ void Restaurante::iniciarSimulacion() {
             });
         //en caso de que hara un error al obtener el platillo o la bebida del cliente se registra un mensaje.
         } catch(const std::runtime_error& e) {
-            log("Error:", e.what(), "- El cliente", item["nombre"].get<std::string>(), "se va decepcionado.");
+            log( e.what(), "- El cliente", item["nombre"].get<std::string>(), "se va decepcionado.");
         }
     }
 //Espera a q los clientes terminen
