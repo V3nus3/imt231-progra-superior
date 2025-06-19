@@ -7,7 +7,7 @@
 #include "Cocinero.h"
 #include "Mesero.h"
 #include "Cliente.h"
-#include "Electrodomesticos.h"
+#include "Electrodomestico.h"
 
 using json = nlohmann::json;
 
