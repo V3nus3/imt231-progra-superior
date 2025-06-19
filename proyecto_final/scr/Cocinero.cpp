@@ -3,7 +3,7 @@
 #include "Global.h"
 #include <thread>
 #include "Pedido.h"
-#include "Cliente.h" // <-- LÍNEA AÑADIDA PARA LA CORRECCIÓN FINAL
+#include "Cliente.h" 
 
 Cocinero::Cocinero(int id, std::string n, Restaurante* r)
     : Trabajador(id, n, "Cocinero"), restaurante(r) {}
