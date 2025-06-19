@@ -13,11 +13,13 @@ void Cocinero::trabajar() {
     while (restaurante->simulacionActiva) {
         Pedido* pedido;
         {
+            
             std::unique_lock<std::mutex> lock(restaurante->mtxPedidosPendientes);
             restaurante->cvPedidosPendientes.wait(lock, [this] {
                 return !restaurante->pedidosPendientes.empty() || !restaurante->simulacionActiva;
             });
 
+            //Si la simulacion no esta activa y no hay pedidos pendientes el cocinero termina su turno
             if (!restaurante->simulacionActiva && restaurante->pedidosPendientes.empty()) {
                 break;
             }
