@@ -13,7 +13,7 @@ void Cocinero::trabajar() {
     while (restaurante->simulacionActiva) {
         Pedido* pedido;
         {
-            
+            //Se crea un lock unico en mtxPedidoPendientes para evitar porblemas de acceso concurrente
             std::unique_lock<std::mutex> lock(restaurante->mtxPedidosPendientes);
             restaurante->cvPedidosPendientes.wait(lock, [this] {
                 return !restaurante->pedidosPendientes.empty() || !restaurante->simulacionActiva;
