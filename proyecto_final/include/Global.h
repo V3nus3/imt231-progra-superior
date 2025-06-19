@@ -8,6 +8,7 @@
 #include <iomanip>
 
 //Creacioon de la clase EstaodPedido para facilitar el manejo de estados del Pedido
+//define los posibles estados de un pedido
 enum class EstadoPedido {
     Pendiente,
     Pagado,
