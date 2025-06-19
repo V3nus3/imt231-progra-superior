@@ -7,9 +7,15 @@
   },
   {
     "nombre": "lucía",
-    "platillo": "Waffle",
+    "platillo": "Arepa",
     "bebida": "Matcha",
     "tiempo_llegada": 1.0
+  },
+  {
+    "nombre": "lucía",
+    "platillo": "Waffle",
+    "bebida": "Refresco",
+    "tiempo_llegada": 1.2
   },
   {
     "nombre": "mateo",
